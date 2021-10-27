@@ -3,29 +3,34 @@ import { render, fireEvent } from '@testing-library/react';
 import TodoForm from './TodoForm';
 
 describe('<TodoForm />', () => {
+  const commonTestCode = (props = {}) => {
+    const utils = render(<TodoForm {...props} />);
+    const { getByText, getByPlaceholderText } = utils;
+
+    const inputText = getByPlaceholderText('할 일을 입력하세요.'); // 입력 input 확인
+    const submitButton = getByText('추가'); // 추가 button 확인
+    return {
+      ...utils,
+      inputText,
+      submitButton,
+    };
+  };
+
   it('todo form has text input and submit button', () => {
-    const { getByText, getByPlaceholderText } = render(<TodoForm />);
-    getByPlaceholderText('할 일을 입력하세요.'); // todo 입력 input 확인
-    getByText('추가'); // 추가 button 확인
+    const { inputText, submitButton } = commonTestCode();
+    expect(inputText).toBeTruthy();
+    expect(submitButton).toBeTruthy();
   });
 
   it('input text changes', () => {
-    const { getByPlaceholderText } = render(<TodoForm />);
-    const input = getByPlaceholderText('할 일을 입력하세요.');
-
-    fireEvent.change(input, { target: { value: 'onChange test' } });
-
-    expect(input).toHaveAttribute('value', 'onChange test');
+    const { inputText } = commonTestCode();
+    fireEvent.change(inputText, { target: { value: 'onChange test' } });
+    expect(inputText).toHaveAttribute('value', 'onChange test');
   });
 
   it('todo submit and clear input text', () => {
     const onInsert = jest.fn();
-    const { getByText, getByPlaceholderText } = render(
-      <TodoForm onInsert={onInsert} />
-    );
-
-    const inputText = getByPlaceholderText('할 일을 입력하세요.');
-    const submitButton = getByText('추가');
+    const { inputText, submitButton } = commonTestCode({ onInsert }); //props 필요시 직접 paramter로 전달
 
     fireEvent.change(inputText, {
       target: {
