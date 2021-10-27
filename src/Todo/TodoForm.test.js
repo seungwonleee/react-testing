@@ -10,11 +10,31 @@ describe('<TodoForm />', () => {
   });
 
   it('input text changes', () => {
-    const { getByDisplayValue, getByPlaceholderText } = render(<TodoForm />);
+    const { getByPlaceholderText } = render(<TodoForm />);
     const input = getByPlaceholderText('할 일을 입력하세요.');
 
     fireEvent.change(input, { target: { value: 'onChange test' } });
 
     expect(input).toHaveAttribute('value', 'onChange test');
+  });
+
+  it('todo submit and clear input text', () => {
+    const onInsert = jest.fn();
+    const { getByText, getByPlaceholderText } = render(
+      <TodoForm onInsert={onInsert} />
+    );
+
+    const inputText = getByPlaceholderText('할 일을 입력하세요.');
+    const submitButton = getByText('추가');
+
+    fireEvent.change(inputText, {
+      target: {
+        value: 'onChange test',
+      },
+    });
+
+    fireEvent.click(submitButton);
+    expect(onInsert).toBeCalledWith('onChange test'); //onInsert 가 'onChange test' 파라미터를 호출했어야한다.
+    expect(inputText).toHaveAttribute('value', ''); // input의 text가 비어져있어야 한다.
   });
 });
